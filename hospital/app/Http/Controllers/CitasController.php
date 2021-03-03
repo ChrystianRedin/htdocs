@@ -15,7 +15,7 @@ class CitasController extends Controller
     public function index()
     {
         //
-        $datos['citas']=Citas::paginate(5);
+        $datos['citas']=Citas::paginate(1);
         return view('citas.index',$datos);
     }
 
@@ -39,10 +39,27 @@ class CitasController extends Controller
     public function store(Request $request)
     {
         //
+
+        $campos=[
+            'Nombre'=>'required|string|max:100',
+            'APaterno'=>'required|string|max:100',
+            'AMaterno'=>'required|string|max:100',
+            'FechaCita'=>'required|date',
+            'Id_Doctor'=>'required|integer',
+            'Id_Departamento'=>'required|integer',
+        ];
+
+        $mensaje=[
+            'required'=>'El campo :attribute es requerido'
+        ];
+
+        $this->validate($request,$campos,$mensaje);
+
         //$datoscitas = request()->all();
         $datoscitas = request()->except('_token');
         Citas::insert($datoscitas);
-        return response()->json($datoscitas);
+        //return response()->json($datoscitas);
+        return redirect('citas')->with('mensaje','Cita agregado con éxito');
     }
 
     /**
@@ -62,9 +79,13 @@ class CitasController extends Controller
      * @param  \App\Models\Citas  $citas
      * @return \Illuminate\Http\Response
      */
-    public function edit(Citas $citas)
+    public function edit($id)
     {
         //
+        
+        $cita=Citas::findOrFail($id);
+
+        return view('citas.edit',compact('cita'));
     }
 
     /**
@@ -74,9 +95,31 @@ class CitasController extends Controller
      * @param  \App\Models\Citas  $citas
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Citas $citas)
+    public function update(Request $request, $id)
     {
         //
+        $campos=[
+            'Nombre'=>'required|string|max:100',
+            'APaterno'=>'required|string|max:100',
+            'AMaterno'=>'required|string|max:100',
+            'FechaCita'=>'required|date',
+            'Id_Doctor'=>'required|integer',
+            'Id_Departamento'=>'required|integer',
+        ];
+
+        $mensaje=[
+            'required'=>'El campo :attribute es requerido'
+        ];
+
+        $this->validate($request,$campos,$mensaje);
+
+
+
+        $datoscitas = request()->except('_token','_method');
+        Citas::where('id','=',$id)->update($datoscitas);
+        $cita=Citas::findOrFail($id);
+        //return view('citas.edit',compact('cita'));
+        return redirect('citas')->with('mensaje','Cita Actualizada con éxito');
     }
 
     /**
@@ -85,8 +128,11 @@ class CitasController extends Controller
      * @param  \App\Models\Citas  $citas
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Citas $citas)
+    public function destroy($id)
     {
         //
+        
+        Citas::destroy($id);
+        return redirect('citas')->with('mensaje','Cita eliminada con éxito');
     }
 }

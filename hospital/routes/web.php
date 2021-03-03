@@ -15,11 +15,19 @@ use App\Http\Controllers\CitasController;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('auth.login');
 });
 // 
 // Route::get('/citas', function () {
 //     return view('citas.index');
 // });
 
-Route::resource('citas',CitasController::class);
+Route::resource('citas',CitasController::class)->middleware('auth');
+
+Auth::routes(['reset'=>false]);
+
+Route::get('/home', [CitasController::class, 'index'])->name('home');
+
+Route::group(['middleware'=>'auth'],function(){
+    Route::get('/', [CitasController::class, 'index'])->name('home');
+});
